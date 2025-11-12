@@ -1,0 +1,12 @@
+[project]
+name = "01-coreconcepts"
+version = "0.1.0"
+description = "MCP server con openai"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=1.0.0",
+    "mcp[cli]>=1.21.0",
+    "openai>=1.12.0",
+    "python-dotenv>=1.1.0",
+]

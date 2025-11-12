@@ -1,48 +1,65 @@
-### Python Example: Building an MCP Server
-
-# This example uses fastmcp, so please ensure you install it first:
-
-# ```python
-# pip install fastmcp
-# ```
-# Code Sample:
-
-# ```python
-
 import asyncio
-from fastmcp import FastMCP
-from fastmcp.transports.stdio import serve_stdio
+from mcp.server.fastmcp import FastMCP
 
-# Create a FastMCP server
-mcp = FastMCP(name="Weather MCP Server", version="1.0.0")
-
-# @mcp.tool()
-# def get_weather(location: str) -> dict:
-#     """Gets current weather for a location."""
-#     return {
-#         "temperature": 72.5,
-#         "conditions": "Sunny",
-#         "location": location
-#     }
+# Crear el servidor MCP
+mcp = FastMCP(name="Weather MCP Server")
 
 
-# Alternative approach using a class
 class WeatherTools:
+    """Herramientas relacionadas con el clima"""
+
     @mcp.tool()
-    def forecast(self, location: str, days: int = 1) -> dict:
-        """Gets weather forecast for a location for the specified number of days."""
+    def get_current_weather(self, location: str) -> dict:
+        """Obtiene el clima actual de una ubicación específica.
+
+        Args:
+            # location: Nombre de la ciudad o ubicación
+
+        Returns:
+            Diccionario con temperatura y condiciones actuales
+        """
+        return {
+            "location": location,
+            "temperature": 22.5,
+            "conditions": "Soleado",
+            "humidity": 65,
+            "wind_speed": 10,
+        }
+
+    @mcp.tool()
+    def get_forecast(self, location: str, days: int = 3) -> dict:
+        """Obtiene el pronóstico del clima para varios días.
+
+        Args:
+            location: Nombre de la ciudad o ubicación
+            days: Número de días del pronóstico (1-7)
+
+        Returns:
+            Diccionario con el pronóstico por días
+        """
+        if days < 1 or days > 7:
+            return {"error": "Los días deben estar entre 1 y 7"}
+
         return {
             "location": location,
             "forecast": [
-                {"day": i + 1, "temperature": 70 + i, "conditions": "Partly Cloudy"}
+                {
+                    "day": i + 1,
+                    "date": f"2025-11-{13 + i}",
+                    "temperature_max": 24 + i,
+                    "temperature_min": 15 + i,
+                    "conditions": "Parcialmente nublado" if i % 2 == 0 else "Soleado",
+                    "precipitation_chance": 20 + (i * 10),
+                }
                 for i in range(days)
             ],
         }
 
 
-# Register class tools
+# Registrar las herramientas
 weather_tools = WeatherTools()
 
-# Start the server
+# Iniciar el servidor
 if __name__ == "__main__":
-    asyncio.run(serve_stdio(mcp))
+    # En fastmcp 2.x, se usa mcp.run() en lugar de serve_stdio
+    mcp.run()
